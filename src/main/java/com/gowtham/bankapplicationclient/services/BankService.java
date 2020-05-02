@@ -18,20 +18,19 @@ public class BankService {
     private static final String CHAINCODE_ID = "bank";
     private static final String CHAINCODE_NAME = "BankSmartContract";
 
-    public String initialize(String number, String name, String age, String guardian,
-                         String balance, String minBal) throws IOException {
+    public BankAccount initialize(final BankAccount bankAccount1) throws IOException {
         Wallet wallet = Wallet.createFileSystemWallet(Paths.get(WALLET_PATH));
         Path connectionProfile = Paths.get(CONNECTION_YAML);
-        Gateway.Builder builder =  Gateway.createBuilder().identity(wallet, name).networkConfig(connectionProfile).discovery(false);
+        Gateway.Builder builder =  Gateway.createBuilder().identity(wallet, bankAccount1.getBankAccountHolderName()).networkConfig(connectionProfile).discovery(false);
         try(Gateway gateway = builder.connect()) {
             Network network = gateway.getNetwork(CHANNEL);
             Contract contract = network.getContract(CHAINCODE_ID, CHAINCODE_NAME);
-            byte[] response = contract.submitTransaction("addBankAccount", number,name,age,"null",balance,minBal);
-            // Process response
+            byte[] response = contract.submitTransaction("addBankAccount", bankAccount1.getBankAccountNumber(),bankAccount1.getBankAccountHolderName(),
+                    bankAccount1.getBankAccountHolderAge(),bankAccount1.getBankAccountGuardianName(),bankAccount1.getBalanceAmount(),bankAccount1.getMinimumBalanceAmount());
             ObjectMapper objectMapper = new ObjectMapper();
             BankAccount bankAccount = objectMapper.readValue(response,BankAccount.class);
-            String jsonoutput = objectMapper.writeValueAsString(bankAccount);
-            return jsonoutput;
+//            String jsonoutput = objectMapper.writeValueAsString(bankAccount);
+            return bankAccount;
         } catch (InterruptedException | TimeoutException | ContractException e) {
             e.printStackTrace();
         }

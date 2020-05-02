@@ -1,10 +1,15 @@
 package com.gowtham.bankapplicationclient.controllers;
 
+import com.gowtham.bankapplicationclient.resources.BankAccount;
 import com.gowtham.bankapplicationclient.services.BankService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 import java.io.IOException;
 
 @RestController
@@ -15,9 +20,9 @@ public class Bank {
     private BankService bankService;
 
     @RequestMapping("/initialize")
-    public String initialize(String number, String name, String age, @RequestParam(required = false) String guardian,
-                           String balance, String minBal) throws IOException {
-        return bankService.initialize(number,name,age, guardian, balance, minBal);
+    public ResponseEntity initialize(@Valid @RequestBody BankAccount bankAccount) throws IOException {
+        return new ResponseEntity(bankService.initialize(bankAccount), HttpStatus.CREATED);
     }
 
+    //TODO transfer of money from one account to another
 }
